@@ -1,0 +1,16 @@
+# Visual Studio cache
+.vs/
+*.user
+*.suo
+
+# Build output
+bin/
+obj/
+
+# Secrets and local settings
+appsettings.Development.json
+appsettings.Local.json
+
+# OS junk
+Thumbs.db
+.DS_Store
