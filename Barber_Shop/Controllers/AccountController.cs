@@ -40,7 +40,7 @@ namespace Barber_Shop.Controllers
         {
             var user = await _userManager.FindByEmailAsync(dto.Email);
             if (user == null || !await _userManager.CheckPasswordAsync(user, dto.Password))
-                return Unauthorized();
+                return Unauthorized("Invalid credentials");
 
             var roles = await _userManager.GetRolesAsync(user);
 
@@ -51,14 +51,10 @@ namespace Barber_Shop.Controllers
                 new Claim(ClaimTypes.Name, user.FullName)
             };
 
-            foreach (var role in roles)
-            {
-                claims.Add(new Claim(ClaimTypes.Role, role));
-            }
-
-            //claims.AddRange(roles.Select(r => new Claim(ClaimTypes.Role, r)));
+            claims.AddRange(roles.Select(role => new Claim(ClaimTypes.Role, role)));
 
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["JwtSettings:Key"]));
+            Console.WriteLine("🔐 Signing JWT with: " + _config["JwtSettings:Key"]);
             var token = new JwtSecurityToken(
                 issuer: _config["JwtSettings:Issuer"],
                 audience: _config["JwtSettings:Audience"],
@@ -70,64 +66,23 @@ namespace Barber_Shop.Controllers
             return Ok(new { token = new JwtSecurityTokenHandler().WriteToken(token) });
         }
 
-
-        [HttpGet("all")]
-        [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> GetAllUsers()
-        {
-            var currentUser = await _userManager.GetUserAsync(User);
-            if (currentUser == null)
-            {
-                return Unauthorized("Current user not found.");
-            }
-
-            var roles = await _userManager.GetRolesAsync(currentUser);
-            Console.WriteLine($"Current user: {currentUser.Email}, Roles: {string.Join(",", roles)}");
-
-            var users = _userManager.Users.ToList();
-            var result = users.Select(u => new
-            {
-                Id = u.Id,
-                Email = u.Email,
-                FullName = u.FullName
-            });
-
-            return Ok(result);
-        }
-
-
-        [HttpPost("promote")]
-        [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> PromoteUser([FromBody] ChangeRoleDTO dto)
-        {
-            var user = await _userManager.FindByIdAsync(dto.UserId);
-            if (user == null)
-                return NotFound("User not found.");
-
-            var validRoles = new[] { "Admin", "Barber", "Customer" };
-            if (!validRoles.Contains(dto.Role))
-                return BadRequest("Invalid role.");
-
-            var currentRoles = await _userManager.GetRolesAsync(user);
-            await _userManager.RemoveFromRolesAsync(user, currentRoles);
-            await _userManager.AddToRoleAsync(user, dto.Role);
-
-            return Ok($"User promoted to {dto.Role}.");
-        }
-
-
-
         [HttpGet("me")]
         [Authorize]
         public async Task<IActionResult> Me()
         {
-            var user = await _userManager.GetUserAsync(User);
+            Console.WriteLine("📥 [DEBUG] /api/account/me called");
 
+            var id = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            Console.WriteLine("🧾 Token user ID: " + id);
+
+            var user = await _userManager.FindByIdAsync(id);
             if (user == null)
-                return Unauthorized("❌ Could not map token to a user (GetUserAsync returned null)");
+            {
+                Console.WriteLine("❌ FindByIdAsync returned null for ID: " + id);
+                return Unauthorized("User not found.");
+            }
 
             var roles = await _userManager.GetRolesAsync(user);
-
             return Ok(new
             {
                 Id = user.Id,
@@ -138,7 +93,42 @@ namespace Barber_Shop.Controllers
         }
 
 
+        [HttpGet("me-raw")]
+        [Authorize]
+        public IActionResult MeRaw()
+        {
+            return Ok(User.Claims.Select(c => new { c.Type, c.Value }));
+        }
 
+        [HttpGet("all")]
+        [Authorize(Roles = "Admin")]
+        public IActionResult GetAllUsers()
+        {
+            var users = _userManager.Users.Select(u => new
+            {
+                Id = u.Id,
+                Email = u.Email,
+                FullName = u.FullName
+            }).ToList();
+
+            return Ok(users);
+        }
+
+        [HttpPost("promote")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> PromoteUser(ChangeRoleDTO dto)
+        {
+            var user = await _userManager.FindByIdAsync(dto.UserId);
+            if (user == null) return NotFound("User not found.");
+
+            var validRoles = new[] { "Admin", "Barber", "Customer" };
+            if (!validRoles.Contains(dto.Role)) return BadRequest("Invalid role.");
+
+            var currentRoles = await _userManager.GetRolesAsync(user);
+            await _userManager.RemoveFromRolesAsync(user, currentRoles);
+            await _userManager.AddToRoleAsync(user, dto.Role);
+
+            return Ok($"User promoted to {dto.Role}.");
+        }
     }
-
 }

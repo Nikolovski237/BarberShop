@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+﻿import { useState, useEffect } from "react";
 import axios from "../api/axios";
 
 export default function BookingPage() {
@@ -11,8 +11,11 @@ export default function BookingPage() {
     const [phone, setPhone] = useState("");
 
     useEffect(() => {
-        axios.get("/account?role=Barber").then(res => setBarbers(res.data));
+        axios.get("/users?role=Barber")
+            .then(res => setBarbers(res.data))
+            .catch(err => console.error("Failed to load barbers", err));
     }, []);
+
 
     useEffect(() => {
         if (barberId && date) {
@@ -22,14 +25,26 @@ export default function BookingPage() {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        await axios.post("/appointments", {
-            barberId,
-            appointmentDateTime: `${date}T${selectedTime}`,
-            customerName: name,
-            customerPhone: phone
-        });
-        alert("Booked!");
+
+        if (!barberId || !date || !selectedTime || !name || !phone) {
+            alert("Please fill in all fields.");
+            return;
+        }
+
+        try {
+            await axios.post("/appointments", {
+                barberId,
+                appointmentDateTime: new Date(`${date}T${selectedTime}`).toISOString(),
+                customerName: name,
+                customerPhone: phone
+            });
+            alert("Booked!");
+        } catch (err) {
+            console.error("❌ Booking failed:", err.response?.data || err.message);
+            alert("Booking failed. See console.");
+        }
     };
+
 
     return (
         <form onSubmit={handleSubmit}>
