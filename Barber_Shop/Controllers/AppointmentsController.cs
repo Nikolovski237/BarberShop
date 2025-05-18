@@ -47,26 +47,18 @@ namespace Barber_Shop.Controllers
         [Authorize(Roles = "Customer")]
         public async Task<IActionResult> Create(AppointmentCreateDTO dto)
         {
-            Console.WriteLine("📥 Create appointment hit");
-
             try
             {
                 var user = await _userManager.GetUserAsync(User);
-                if (user == null)
-                    return Unauthorized("Could not resolve user.");
-
-                foreach (var prop in dto.GetType().GetProperties())
-                    Console.WriteLine($"🧾 {prop.Name} = {prop.GetValue(dto)}");
-
                 var result = await _service.CreateAppointmentAsync(dto, user.Id);
-                return result ? Ok("Appointment booked!") : BadRequest("Could not create appointment.");
+                return Ok(result);
             }
-            catch (Exception ex)
+            catch (InvalidOperationException ex)
             {
-                Console.WriteLine("❌ EXCEPTION in Create: " + ex.Message);
-                return StatusCode(500, "Error creating appointment.");
+                return BadRequest(new { message = ex.Message });
             }
         }
+
 
         [HttpPut("{id}/status")]
         [Authorize(Roles = "Admin,Barber")]

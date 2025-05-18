@@ -15,6 +15,12 @@ namespace Barber_Shop.Repositories.Implementations
         public async Task<IEnumerable<Appointment>> GetByBarberIdAsync(string barberId) =>
             await _context.Appointments.Include(a => a.Barber).Where(a => a.BarberId == barberId).ToListAsync();
 
+        public async Task<bool> IsBarberBookedAsync(string barberId, DateTime dateTime)
+        {
+            return await _context.Appointments
+                .AnyAsync(a => a.BarberId == barberId && a.AppointmentDateTime == dateTime);
+        }
+
         public async Task<Appointment?> GetByIdAsync(int id) =>
             await _context.Appointments.Include(a => a.Barber).FirstOrDefaultAsync(a => a.Id == id);
 
@@ -35,6 +41,12 @@ namespace Barber_Shop.Repositories.Implementations
             _context.Appointments.Remove(appointment);
             await _context.SaveChangesAsync();
         }
+
+        public async Task SaveAsync()
+        {
+            await _context.SaveChangesAsync();
+        }
+
     }
 
 }

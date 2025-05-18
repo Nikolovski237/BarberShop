@@ -4,47 +4,49 @@ import axios from "../api/axios";
 export default function MyAppointments() {
     const [appointments, setAppointments] = useState([]);
 
-    const fetchAppointments = async () => {
-        const res = await axios.get("/appointments");
-        setAppointments(res.data);
-    };
+    useEffect(() => {
+        axios.get("/appointments").then(res => setAppointments(res.data));
+    }, []);
 
     const cancelAppointment = async (id) => {
-        if (!confirm("Are you sure you want to cancel this appointment?")) return;
+        if (!confirm("Cancel this appointment?")) return;
         await axios.delete(`/appointments/${id}`);
-        fetchAppointments();
+        setAppointments(prev => prev.filter(a => a.id !== id));
     };
 
-    useEffect(() => { fetchAppointments(); }, []);
-
     return (
-        <div>
-            <h2>My Appointments</h2>
+        <div className="max-w-4xl mx-auto mt-10 p-4">
+            <h2 className="text-2xl font-bold mb-4">My Appointments</h2>
             {appointments.length === 0 ? (
-                <p>You have no appointments.</p>
+                <p className="text-gray-500">You have no appointments.</p>
             ) : (
-                <table>
-                    <thead>
+                <table className="w-full border shadow rounded-xl overflow-hidden">
+                    <thead className="bg-gray-100 text-left">
                         <tr>
-                            <th>Barber</th>
-                            <th>Date</th>
-                            <th>Time</th>
-                            <th>Status</th>
-                            <th>Cancel</th>
+                            <th className="p-3">Barber</th>
+                            <th className="p-3">Date</th>
+                            <th className="p-3">Time</th>
+                            <th className="p-3">Status</th>
+                            <th className="p-3">Action</th>
                         </tr>
                     </thead>
                     <tbody>
                         {appointments.map(a => {
                             const date = new Date(a.appointmentDateTime);
                             return (
-                                <tr key={a.id}>
-                                    <td>{a.barberName}</td>
-                                    <td>{date.toLocaleDateString()}</td>
-                                    <td>{date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}</td>
-                                    <td>{a.status}</td>
-                                    <td>
+                                <tr key={a.id} className="hover:bg-gray-50">
+                                    <td className="p-3">{a.barberName}</td>
+                                    <td className="p-3">{date.toLocaleDateString()}</td>
+                                    <td className="p-3">{date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}</td>
+                                    <td className="p-3">{a.status}</td>
+                                    <td className="p-3">
                                         {a.status === "Pending" && (
-                                            <button onClick={() => cancelAppointment(a.id)}>Cancel</button>
+                                            <button
+                                                onClick={() => cancelAppointment(a.id)}
+                                                className="text-red-600 hover:underline"
+                                            >
+                                                Cancel
+                                            </button>
                                         )}
                                     </td>
                                 </tr>

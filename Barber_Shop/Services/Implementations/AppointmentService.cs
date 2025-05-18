@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Barber_Shop.Data;
 using Barber_Shop.DTOs;
+using Barber_Shop.Repositories.Implementations;
 using Barber_Shop.Repositories.Interfaces;
 using Barber_Shop.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
@@ -34,14 +35,24 @@ namespace Barber_Shop.Services.Implementations
             return _mapper.Map<IEnumerable<AppointmentDTO>>(data);
         }
 
-        public async Task<bool> CreateAppointmentAsync(AppointmentCreateDTO dto, string userId)
+        public async Task<AppointmentDTO> CreateAppointmentAsync(AppointmentCreateDTO dto, string userId)
         {
-            var model = _mapper.Map<Appointment>(dto);
-            model.Status = AppointmentStatus.Pending;
-            model.CreatedByUserId = userId;
-            await _repo.AddAsync(model);
-            return true;
+            // Check for existing appointment at the same date/time with same barber
+            bool isDoubleBooked = await _repo
+                .IsBarberBookedAsync(dto.BarberId, dto.AppointmentDateTime);
+
+            if (isDoubleBooked)
+                throw new InvalidOperationException("This time slot is already booked.");
+
+            var appointment = _mapper.Map<Appointment>(dto);
+            appointment.CreatedByUserId = userId;
+
+            await _repo.AddAsync(appointment);
+            await _repo.SaveAsync();
+
+            return _mapper.Map<AppointmentDTO>(appointment);
         }
+
 
         public async Task<bool> UpdateStatusAsync(int id, AppointmentStatus status)
         {
@@ -95,7 +106,6 @@ namespace Barber_Shop.Services.Implementations
 
             return slots;
         }
-
     }
 
 }

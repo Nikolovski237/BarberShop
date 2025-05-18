@@ -1,5 +1,8 @@
 import { useEffect, useState } from "react";
 import axios from "../api/axios";
+import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
 
 export default function AdminPanel() {
     const [users, setUsers] = useState([]);
@@ -9,46 +12,52 @@ export default function AdminPanel() {
     useEffect(() => {
         axios.get("/account/all")
             .then(res => setUsers(res.data))
-            .catch(err => {
-                console.error("Failed to fetch users", err);
-                alert("Failed to load user list.");
-            });
+            .catch(() => alert("Failed to load user list."));
     }, []);
 
     const promoteUser = async () => {
         if (!selectedUser || !role) return;
-
         try {
-            await axios.post("/account/promote", {
-                userId: selectedUser,
-                role
-            });
-            alert("User promoted successfully!");
-        } catch (err) {
+            await axios.post("/account/promote", { userId: selectedUser, role });
+            alert("User promoted!");
+        } catch {
             alert("Promotion failed.");
-            console.error(err);
         }
     };
 
     return (
-        <div>
-            <h2>Admin Panel</h2>
-            <select onChange={(e) => setSelectedUser(e.target.value)}>
-                <option value="">Select user</option>
-                {users.map(user => (
-                    <option key={user.id} value={user.id}>
-                        {user.fullName || user.email}
-                    </option>
-                ))}
-            </select>
+        <Card className="max-w-xl mx-auto mt-10 p-6 shadow-lg rounded-xl">
+            <CardContent>
+                <h2 className="text-2xl font-bold mb-4">Admin Panel: Promote Users</h2>
 
-            <select value={role} onChange={(e) => setRole(e.target.value)}>
-                <option value="Customer">Customer</option>
-                <option value="Barber">Barber</option>
-                <option value="Admin">Admin</option>
-            </select>
+                <div className="space-y-4">
+                    <Select onValueChange={setSelectedUser}>
+                        <SelectTrigger>
+                            <SelectValue placeholder="Select a user" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            {users.map(user => (
+                                <SelectItem key={user.id} value={user.id}>
+                                    {user.fullName || user.email}
+                                </SelectItem>
+                            ))}
+                        </SelectContent>
+                    </Select>
 
-            <button onClick={promoteUser}>Promote</button>
-        </div>
+                    <Select value={role} onValueChange={setRole}>
+                        <SelectTrigger>
+                            <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="Customer">Customer</SelectItem>
+                            <SelectItem value="Barber">Barber</SelectItem>
+                            <SelectItem value="Admin">Admin</SelectItem>
+                        </SelectContent>
+                    </Select>
+
+                    <Button onClick={promoteUser} className="w-full">Promote</Button>
+                </div>
+            </CardContent>
+        </Card>
     );
 }

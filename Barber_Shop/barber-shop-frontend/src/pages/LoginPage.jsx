@@ -1,7 +1,10 @@
-﻿import axios from "../api/axios";
-import { useAuth } from "../auth/AuthContext";
+﻿import { useState } from "react";
+import axios from "../api/axios";
 import { useNavigate } from "react-router-dom";
-import { useState } from "react";
+import { useAuth } from "../auth/AuthContext";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
 
 export default function LoginPage() {
     const { login } = useAuth();
@@ -15,21 +18,30 @@ export default function LoginPage() {
             const res = await axios.post("/account/login", { email, password });
             login(res.data.token);
             navigate("/");
-            return; // ✅ prevents fallthrough
-        } catch (err) {
+        } catch {
             alert("Login failed");
-            console.error(err);
         }
     };
 
-
-
     return (
-        <form onSubmit={handleSubmit}>
-            <h2>Login</h2>
-            <input value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Email" />
-            <input value={password} type="password" onChange={(e) => setPassword(e.target.value)} placeholder="Password" />
-            <button>Login</button>
-        </form>
+        <Card className="max-w-md mx-auto mt-20 shadow-lg p-6">
+            <CardContent>
+                <h2 className="text-2xl font-semibold mb-6 text-center">Login</h2>
+                <form onSubmit={handleSubmit} className="space-y-4">
+                    <Input
+                        placeholder="Email"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                    />
+                    <Input
+                        type="password"
+                        placeholder="Password"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                    />
+                    <Button type="submit" className="w-full">Login</Button>
+                </form>
+            </CardContent>
+        </Card>
     );
 }

@@ -6,7 +6,7 @@ namespace Barber_Shop.Services.Interfaces
     {
         Task<IEnumerable<AppointmentDTO>> GetAppointmentsAsync(string role, string userId);
         Task<List<string>> GetAvailableSlotsAsync(string barberId, DateOnly date);
-        Task<bool> CreateAppointmentAsync(AppointmentCreateDTO dto, string userId);
+        Task<AppointmentDTO> CreateAppointmentAsync(AppointmentCreateDTO dto, string userId);
         Task<bool> UpdateStatusAsync(int id, AppointmentStatus status);
         Task<bool> DeleteAppointmentAsync(int id);
     }
