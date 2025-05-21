@@ -37,7 +37,6 @@ namespace Barber_Shop.Services.Implementations
 
         public async Task<AppointmentDTO> CreateAppointmentAsync(AppointmentCreateDTO dto, string userId)
         {
-            // Check for existing appointment at the same date/time with same barber
             bool isDoubleBooked = await _repo
                 .IsBarberBookedAsync(dto.BarberId, dto.AppointmentDateTime);
 
@@ -62,6 +61,12 @@ namespace Barber_Shop.Services.Implementations
             await _repo.UpdateAsync(app);
             return true;
         }
+        public async Task<IEnumerable<AppointmentDTO>> GetAllAppointmentsAsync()
+        {
+            var all = await _repo.GetAllAsync();
+            return _mapper.Map<IEnumerable<AppointmentDTO>>(all);
+        }
+
 
         public async Task<bool> DeleteAppointmentAsync(int id)
         {
@@ -76,20 +81,18 @@ namespace Barber_Shop.Services.Implementations
             var isToday = date == DateOnly.FromDateTime(DateTime.UtcNow.Date);
             var weekday = date.DayOfWeek;
 
-            // Get barber-specific or fallback to global hours
             var hours = await _context.WorkingHours
                 .Where(w => w.BarberId == barberId && w.Day == weekday || (w.BarberId == null && w.Day == weekday))
-                .OrderByDescending(w => w.BarberId) // prefer specific over global
+                .OrderByDescending(w => w.BarberId)
                 .FirstOrDefaultAsync();
 
             if (hours == null || hours.IsClosed)
-                return new List<string>(); // no slots today
+                return new List<string>();
 
             var start = hours.OpenTime;
             var end = hours.CloseTime;
             var now = DateTime.UtcNow;
 
-            // Get booked times
             var booked = await _context.Appointments
                 .Where(a => a.BarberId == barberId && DateOnly.FromDateTime(a.AppointmentDateTime) == date)
                 .Select(a => a.AppointmentDateTime.TimeOfDay)

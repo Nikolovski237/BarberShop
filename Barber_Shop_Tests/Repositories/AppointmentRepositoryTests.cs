@@ -18,7 +18,6 @@ public class AppointmentRepositoryTests
             .EnableSensitiveDataLogging()
             .Options;
 
-        // Seed data
         using (var context = new ApplicationDbContext(options))
         {
             context.Users.Add(new ApplicationUser
@@ -42,11 +41,9 @@ public class AppointmentRepositoryTests
             Console.WriteLine("🔍 Saved changes: " + saved);
             var count = await context.Appointments.CountAsync();
             Console.WriteLine("📦 Count after save: " + count);
-            Assert.Equal(1, count); // Confirm save worked
+            Assert.Equal(1, count);
         }
 
-
-        // Run test
         using (var context = new ApplicationDbContext(options))
         {
             var repo = new AppointmentRepository(context);

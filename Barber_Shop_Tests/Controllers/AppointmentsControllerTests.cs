@@ -16,19 +16,16 @@ public class AppointmentsControllerTests
     [Fact]
     public async Task Get_ReturnsAppointmentsForCustomer()
     {
-        // Arrange
         var mockService = new Mock<IAppointmentService>();
         var mockUserManager = MockUserManager();
 
         var user = new ApplicationUser { Id = "1", UserName = "testuser" };
         var roles = new List<string> { "Customer" };
 
-        // Setup UserManager
         mockUserManager.Setup(m => m.GetUserAsync(It.IsAny<ClaimsPrincipal>()))
                        .ReturnsAsync(user);
         mockUserManager.Setup(m => m.GetRolesAsync(user)).ReturnsAsync(roles);
 
-        // Setup IAppointmentService
         mockService.Setup(s => s.GetAppointmentsAsync("Customer", "1"))
                    .ReturnsAsync(new List<AppointmentDTO> {
                        new AppointmentDTO { Id = 1, BarberName = "Barber Bob" }
@@ -36,10 +33,8 @@ public class AppointmentsControllerTests
 
         var controller = new AppointmentsController(mockService.Object, mockUserManager.Object);
 
-        // Act
         var result = await controller.Get();
 
-        // Assert
         var okResult = Assert.IsType<OkObjectResult>(result);
         var appointments = Assert.IsType<List<AppointmentDTO>>(okResult.Value);
         Assert.Single(appointments);

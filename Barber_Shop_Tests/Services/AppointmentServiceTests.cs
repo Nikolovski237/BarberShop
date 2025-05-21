@@ -18,11 +18,10 @@ namespace Barber_Shop.Tests.Services
         [Fact]
         public async Task GetAppointmentsAsync_AsAdmin_ReturnsMappedAppointments()
         {
-            // Arrange
             var mockRepo = new Mock<IAppointmentRepository>();
             var mockMapper = new Mock<IMapper>();
             var options = new DbContextOptionsBuilder<ApplicationDbContext>()
-                .UseInMemoryDatabase("BarberShopTestDb_Admin") // Give each test a unique name
+                .UseInMemoryDatabase("BarberShopTestDb_Admin")
                 .Options;
 
             var dbContext = new ApplicationDbContext(options);
@@ -45,10 +44,8 @@ namespace Barber_Shop.Tests.Services
             var service = new AppointmentService(mockRepo.Object, mockMapper.Object, dbContext);
 
 
-            // Act
             var result = await service.GetAppointmentsAsync("Admin", "admin123");
 
-            // Assert
             Assert.Single(result);
             Assert.Equal(1, result.First().Id);
         }

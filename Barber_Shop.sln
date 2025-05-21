@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
-VisualStudioVersion = 17.13.35919.96 d17.13
+VisualStudioVersion = 17.13.35919.96
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Barber_Shop", "Barber_Shop\Barber_Shop.csproj", "{13FEDCAE-8F53-4A5D-8762-27DD439F377F}"
 EndProject
@@ -9,6 +9,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 	ProjectSection(SolutionItems) = preProject
 		.gitignore = .gitignore
 	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Barber_Shop_Tests", "Barber_Shop_Tests\Barber_Shop_Tests.csproj", "{2D867A5B-E708-4185-B4F1-C2E1367D209C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -20,6 +22,10 @@ Global
 		{13FEDCAE-8F53-4A5D-8762-27DD439F377F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{13FEDCAE-8F53-4A5D-8762-27DD439F377F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{13FEDCAE-8F53-4A5D-8762-27DD439F377F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2D867A5B-E708-4185-B4F1-C2E1367D209C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2D867A5B-E708-4185-B4F1-C2E1367D209C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2D867A5B-E708-4185-B4F1-C2E1367D209C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2D867A5B-E708-4185-B4F1-C2E1367D209C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

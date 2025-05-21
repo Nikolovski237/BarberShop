@@ -11,7 +11,6 @@ namespace Barber_Shop.Data
             var roleManager = serviceProvider.GetRequiredService<RoleManager<IdentityRole>>();
             var userManager = serviceProvider.GetRequiredService<UserManager<ApplicationUser>>();
 
-            // Define required roles
             string[] roles = { "Admin", "Barber", "Customer" };
 
             foreach (var role in roles)
@@ -20,7 +19,6 @@ namespace Barber_Shop.Data
                     await roleManager.CreateAsync(new IdentityRole(role));
             }
 
-            // Seed admin user
             string adminEmail = "admin@barber.com";
             string adminPassword = "Admin123!";
 
