@@ -65,8 +65,9 @@ Example:
   "DefaultConnection": "Host=localhost;Port=5432;Database=BarberShopDb;Username=postgres;Password=yourpassword"
 }
 ```
+---
 
-#2-frontend-setup-react
+##2-frontend-setup-react
 
 ```bash
 cd barber-shop-frontend
@@ -74,14 +75,18 @@ npm install
 npm run dev
 ```
 
-#3-database-setup-postgresql-via-pgadmin
+---
+
+##3-database-setup-postgresql-via-pgadmin
 
 1.Install PostgreSQL
 2.Open PgAdmin
 3.Create a database named BarberShopDb
 4.Ensure the backend connection string in appsettings.json matches
 
-#-usage-guidelines
+---
+
+##-usage-guidelines
 
 Roles
   Customer: Register → Book appointments → View own history
@@ -93,7 +98,9 @@ Appointment Rules
   Only today or future dates can be selected
   No double bookings allowed for the same barber & time
 
-#-testing
+---
+
+##-testing
 
 Run Unit Tests:
 ```bash
@@ -107,7 +114,9 @@ Test Coverage Includes:
   AppointmentsController
   Business logic and validation
 
-#project-structure
+---
+
+##project-structure
 
 Barber_Shop/
 ├── Controllers/
@@ -121,6 +130,8 @@ Barber_Shop.Tests/
 barber-shop-frontend/
 README.md
 
+---
 
-#-license
+##-license
+
 MIT License. Feel free to use and modify this project for learning or commercial use.
