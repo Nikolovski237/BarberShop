@@ -67,7 +67,7 @@ Example:
 ```
 ---
 
-##2-frontend-setup-react
+## 2. Frontend Setup (React)
 
 ```bash
 cd barber-shop-frontend
@@ -77,7 +77,7 @@ npm run dev
 
 ---
 
-##3-database-setup-postgresql-via-pgadmin
+## 3. Database Setup (PostgreSQL via PgAdmin)
 
 1.Install PostgreSQL
 2.Open PgAdmin
@@ -86,7 +86,7 @@ npm run dev
 
 ---
 
-##-usage-guidelines
+## Usage Guidelines
 
 Roles
   Customer: Register → Book appointments → View own history
@@ -100,7 +100,7 @@ Appointment Rules
 
 ---
 
-##-testing
+## Testing
 
 Run Unit Tests:
 ```bash
@@ -116,7 +116,7 @@ Test Coverage Includes:
 
 ---
 
-##project-structure
+## Project Structure
 
 Barber_Shop/
 ├── Controllers/
@@ -132,6 +132,6 @@ README.md
 
 ---
 
-##-license
+## License
 
 MIT License. Feel free to use and modify this project for learning or commercial use.
