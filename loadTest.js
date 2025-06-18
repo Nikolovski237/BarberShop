@@ -28,9 +28,10 @@ export default function () {
         },
     };
 
+    
     const res = http.post(url, payload, headers);
 
-    console.log(`Status: ${res.status} | Body: ${res.body}`);  // 🔍 Add this line
+    console.log(`Status: ${res.status} | Body: ${res.body}`);
 
     check(res, {
         'Appointment created': (r) => r.status === 200 || r.status === 201,
