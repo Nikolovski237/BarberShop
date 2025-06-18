@@ -41,7 +41,6 @@ export default function App() {
                     {user?.role === "Admin" && (
                         <>
                             <Link to="/admin" className="hover:underline">Admin Panel</Link>
-                            <Link to="/working-hours" className="hover:underline">Global Hours</Link>
                         </>
                     )}
                 </div>

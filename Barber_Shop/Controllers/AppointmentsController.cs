@@ -59,7 +59,6 @@ namespace Barber_Shop.Controllers
             }
         }
 
-
         [HttpPut("{id}/status")]
         [Authorize(Roles = "Admin,Barber")]
         public async Task<IActionResult> UpdateStatus(int id, [FromBody] string status)
@@ -69,8 +68,16 @@ namespace Barber_Shop.Controllers
 
             try
             {
-                var result = await _service.UpdateStatusAsync(id, parsed);
-                return result ? Ok("Status updated.") : NotFound("Appointment not found.");
+                var user = await _userManager.GetUserAsync(User);
+                var roles = await _userManager.GetRolesAsync(user);
+                var role = roles.FirstOrDefault() ?? "Customer";
+
+                var result = await _service.UpdateStatusAsync(id, parsed, user.Id, role);
+                return result ? Ok("Status updated or appointment deleted.") : NotFound("Appointment not found.");
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return Forbid(ex.Message);
             }
             catch (Exception ex)
             {
@@ -79,14 +86,25 @@ namespace Barber_Shop.Controllers
             }
         }
 
+
         [HttpDelete("{id}")]
-        [Authorize(Roles = "Admin")]
+        [Authorize] 
         public async Task<IActionResult> Delete(int id)
         {
             try
             {
-                var result = await _service.DeleteAppointmentAsync(id);
+                var user = await _userManager.GetUserAsync(User);
+                if (user == null) return Unauthorized();
+
+                var roles = await _userManager.GetRolesAsync(user);
+                var role = roles.FirstOrDefault() ?? "Customer";
+
+                var result = await _service.DeleteAppointmentAsync(id, user.Id, role);
                 return result ? NoContent() : NotFound("Appointment not found.");
+            }
+            catch (UnauthorizedAccessException)
+            {
+                return Forbid("You do not have permission to delete this appointment.");
             }
             catch (Exception ex)
             {
@@ -94,5 +112,6 @@ namespace Barber_Shop.Controllers
                 return StatusCode(500, "Failed to delete appointment.");
             }
         }
+
     }
 }

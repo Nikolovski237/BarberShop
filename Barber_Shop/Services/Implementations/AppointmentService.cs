@@ -52,15 +52,33 @@ namespace Barber_Shop.Services.Implementations
             return _mapper.Map<AppointmentDTO>(appointment);
         }
 
-
-        public async Task<bool> UpdateStatusAsync(int id, AppointmentStatus status)
+        public async Task<bool> UpdateStatusAsync(int id, AppointmentStatus newStatus, string userId, string role)
         {
-            var app = await _repo.GetByIdAsync(id);
-            if (app == null) return false;
-            app.Status = status;
-            await _repo.UpdateAsync(app);
+            var appointment = await _context.Appointments.FindAsync(id);
+            if (appointment == null)
+                return false;
+
+            // Barbers can delete only their own appointments when cancelling
+            if (role == "Barber" && newStatus == AppointmentStatus.Cancelled)
+            {
+                if (appointment.BarberId == userId)
+                {
+                    _context.Appointments.Remove(appointment);
+                    await _context.SaveChangesAsync();
+                    return true;
+                }
+
+                throw new UnauthorizedAccessException("Barbers can only cancel their own appointments.");
+            }
+
+            // Otherwise, just update status
+            appointment.Status = newStatus;
+            await _context.SaveChangesAsync();
             return true;
         }
+
+
+
         public async Task<IEnumerable<AppointmentDTO>> GetAllAppointmentsAsync()
         {
             var all = await _repo.GetAllAsync();
@@ -68,13 +86,18 @@ namespace Barber_Shop.Services.Implementations
         }
 
 
-        public async Task<bool> DeleteAppointmentAsync(int id)
+        public async Task<bool> DeleteAppointmentAsync(int id, string userId, string role)
         {
-            var app = await _repo.GetByIdAsync(id);
-            if (app == null) return false;
-            await _repo.DeleteAsync(app);
+            var appointment = await _context.Appointments.FindAsync(id);
+
+            if (appointment == null)
+                return false;
+
+            _context.Appointments.Remove(appointment);
+            await _context.SaveChangesAsync();
             return true;
         }
+
 
         public async Task<List<string>> GetAvailableSlotsAsync(string barberId, DateOnly date)
         {

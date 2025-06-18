@@ -5,7 +5,12 @@ export default function MyAppointments() {
     const [appointments, setAppointments] = useState([]);
 
     useEffect(() => {
-        axios.get("/appointments").then(res => setAppointments(res.data));
+        axios.get("/appointments").then(res => {
+            const sorted = res.data.sort((a, b) =>
+                new Date(b.appointmentDateTime) - new Date(a.appointmentDateTime)
+            );
+            setAppointments(sorted);
+        });
     }, []);
 
     const cancelAppointment = async (id) => {
@@ -14,13 +19,24 @@ export default function MyAppointments() {
         setAppointments(prev => prev.filter(a => a.id !== id));
     };
 
-    return (
-        <div className="max-w-4xl mx-auto mt-10 p-4">
-            <h2 className="text-2xl font-bold mb-4">My Appointments</h2>
-            {appointments.length === 0 ? (
-                <p className="text-gray-500">You have no appointments.</p>
+    const grouped = {
+        Confirmed: [],
+        Pending: [],
+        Completed: [],
+        Cancelled: []
+    };
+
+    appointments.forEach(a => {
+        grouped[a.status]?.push(a);  // Avoid crash if unknown status
+    });
+
+    const renderGroup = (status, group) => (
+        <>
+            <h3 className="text-xl font-semibold mt-8 mb-2">{status} Appointments</h3>
+            {group.length === 0 ? (
+                <p className="text-gray-400">None</p>
             ) : (
-                <table className="w-full border shadow rounded-xl overflow-hidden">
+                <table className="w-full border shadow rounded-xl overflow-hidden mb-6">
                     <thead className="bg-gray-100 text-left">
                         <tr>
                             <th className="p-3">Barber</th>
@@ -31,7 +47,7 @@ export default function MyAppointments() {
                         </tr>
                     </thead>
                     <tbody>
-                        {appointments.map(a => {
+                        {group.map(a => {
                             const date = new Date(a.appointmentDateTime);
                             return (
                                 <tr key={a.id} className="hover:bg-gray-50">
@@ -54,6 +70,22 @@ export default function MyAppointments() {
                         })}
                     </tbody>
                 </table>
+            )}
+        </>
+    );
+
+    return (
+        <div className="max-w-5xl mx-auto mt-10 p-4">
+            <h2 className="text-2xl font-bold mb-6">My Appointments</h2>
+            {appointments.length === 0 ? (
+                <p className="text-gray-500">You have no appointments.</p>
+            ) : (
+                <>
+                    {renderGroup("Pending", grouped.Pending)}
+                    {renderGroup("Confirmed", grouped.Confirmed)}
+                    {renderGroup("Completed", grouped.Completed)}
+                    {renderGroup("Cancelled", grouped.Cancelled)}
+                </>
             )}
         </div>
     );
